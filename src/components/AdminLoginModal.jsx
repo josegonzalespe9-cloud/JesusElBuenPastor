@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { X, Lock, Key, ShieldCheck } from 'lucide-react';
+import { useSite } from '../context/SiteContext';
 
 export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
+  const { adminPassword } = useSite();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
@@ -9,8 +11,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Default admin password for pastor/admin panel access
-    if (password === 'pastor123' || password === 'admin') {
+    if (password === adminPassword || password === 'admin') {
       setError('');
       setPassword('');
       onLoginSuccess();
@@ -40,7 +41,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
                 <Key size={26} />
               </div>
               <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-                Ingresa la clave pastoral para acceder a la gestión de sermones, vídeos de YouTube y administración del ministerio.
+                Ingresa tu contraseña para acceder al panel de edición visual y gestión del ministerio.
               </p>
             </div>
 
@@ -55,14 +56,11 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
               <input 
                 type="password" 
                 required 
-                placeholder="Ingresa clave (Ej: pastor123)" 
+                placeholder="Ingresa clave de administrador" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{ width: '100%', padding: '12px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px' }}
               />
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
-                💡 Clave de prueba por defecto: <strong>pastor123</strong>
-              </span>
             </div>
 
             <button type="submit" className="btn-primary-gold" style={{ justifyContent: 'center', width: '100%', padding: '12px' }}>

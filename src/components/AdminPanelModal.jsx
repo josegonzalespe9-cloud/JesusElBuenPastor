@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { X, ShieldCheck, PlusCircle, Video, BookOpen, LogOut, CheckCircle2, Play, Edit3, Trash2 } from 'lucide-react';
+import { X, ShieldCheck, PlusCircle, Video, Key, LogOut, CheckCircle2, Play, Edit3, Save } from 'lucide-react';
 import { useSite } from '../context/SiteContext';
 
 export default function AdminPanelModal({ isOpen, onClose, onLogout, onTestYoutube }) {
-  const { addSermon, addStudy, isAdminLoggedIn } = useSite();
+  const { addSermon, adminPassword, updateAdminPassword } = useSite();
   const [activeTab, setActiveTab] = useState('nuevo-sermon');
   
   // New Sermon Form State
@@ -13,6 +13,12 @@ export default function AdminPanelModal({ isOpen, onClose, onLogout, onTestYoutu
   const [youtubeInput, setYoutubeInput] = useState('');
   const [summary, setSummary] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
+  // Password Change Form State
+  const [newPass, setNewPass] = useState('');
+  const [confirmPass, setConfirmPass] = useState('');
+  const [passError, setPassError] = useState('');
+  const [passSuccessMessage, setPassSuccessMessage] = useState('');
 
   // Private YouTube tester state inside admin panel
   const [privateYoutubeUrl, setPrivateYoutubeUrl] = useState('');
@@ -51,6 +57,27 @@ export default function AdminPanelModal({ isOpen, onClose, onLogout, onTestYoutu
     setTimeout(() => setSuccessMessage(''), 4000);
   };
 
+  const handleChangePasswordSubmit = (e) => {
+    e.preventDefault();
+    setPassError('');
+    setPassSuccessMessage('');
+
+    if (newPass.length < 4) {
+      setPassError('La contraseña debe tener al menos 4 caracteres.');
+      return;
+    }
+    if (newPass !== confirmPass) {
+      setPassError('Las contraseñas no coinciden. Verifica e intenta nuevamente.');
+      return;
+    }
+
+    updateAdminPassword(newPass);
+    setPassSuccessMessage('¡Contraseña de administrador actualizada con éxito!');
+    setNewPass('');
+    setConfirmPass('');
+    setTimeout(() => setPassSuccessMessage(''), 5000);
+  };
+
   const handleTestPrivateYoutube = (e) => {
     e.preventDefault();
     if (!privateYoutubeUrl) return;
@@ -76,37 +103,51 @@ export default function AdminPanelModal({ isOpen, onClose, onLogout, onTestYoutu
         </div>
 
         {/* Admin Navigation Sub-bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-light)', backgroundColor: '#FAF7F2', padding: '0 24px' }}>
-          <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-light)', backgroundColor: '#FAF7F2', padding: '0 24px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
             <button 
               onClick={() => setActiveTab('nuevo-sermon')}
               style={{ 
-                padding: '14px 20px', 
-                fontSize: '0.88rem', 
+                padding: '14px 18px', 
+                fontSize: '0.85rem', 
                 fontWeight: '700', 
                 borderBottom: activeTab === 'nuevo-sermon' ? '3px solid var(--primary-gold)' : 'none',
                 color: activeTab === 'nuevo-sermon' ? 'var(--primary-gold)' : 'var(--text-muted)'
               }}
             >
-              <PlusCircle size={16} style={{ display: 'inline', marginRight: '6px' }} /> Publicar Nuevo Sermón
+              <PlusCircle size={16} style={{ display: 'inline', marginRight: '6px' }} /> Publicar Sermón
             </button>
+
+            <button 
+              onClick={() => setActiveTab('cambiar-clave')}
+              style={{ 
+                padding: '14px 18px', 
+                fontSize: '0.85rem', 
+                fontWeight: '700', 
+                borderBottom: activeTab === 'cambiar-clave' ? '3px solid var(--primary-gold)' : 'none',
+                color: activeTab === 'cambiar-clave' ? 'var(--primary-gold)' : 'var(--text-muted)'
+              }}
+            >
+              <Key size={16} style={{ display: 'inline', marginRight: '6px' }} /> Cambiar Contraseña
+            </button>
+
             <button 
               onClick={() => setActiveTab('probador-youtube')}
               style={{ 
-                padding: '14px 20px', 
-                fontSize: '0.88rem', 
+                padding: '14px 18px', 
+                fontSize: '0.85rem', 
                 fontWeight: '700', 
                 borderBottom: activeTab === 'probador-youtube' ? '3px solid var(--primary-gold)' : 'none',
                 color: activeTab === 'probador-youtube' ? 'var(--primary-gold)' : 'var(--text-muted)'
               }}
             >
-              <Video size={16} style={{ display: 'inline', marginRight: '6px' }} /> Previsualizar Vídeo de YouTube
+              <Video size={16} style={{ display: 'inline', marginRight: '6px' }} /> Probar YouTube
             </button>
           </div>
 
           <button 
             onClick={() => { onLogout(); onClose(); }}
-            style={{ fontSize: '0.8rem', color: '#DC2626', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}
+            style={{ fontSize: '0.8rem', color: '#DC2626', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', padding: '14px 0' }}
           >
             <LogOut size={16} /> Salir del Modo Editor
           </button>
@@ -114,7 +155,7 @@ export default function AdminPanelModal({ isOpen, onClose, onLogout, onTestYoutu
 
         {/* Modal Body */}
         <div className="modal-body">
-          {activeTab === 'nuevo-sermon' ? (
+          {activeTab === 'nuevo-sermon' && (
             <div>
               <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', marginBottom: '16px', color: 'var(--bg-dark)' }}>
                 Añadir Prédica o Mensaje a la Plataforma
@@ -192,7 +233,62 @@ export default function AdminPanelModal({ isOpen, onClose, onLogout, onTestYoutu
                 </button>
               </form>
             </div>
-          ) : (
+          )}
+
+          {activeTab === 'cambiar-clave' && (
+            <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+              <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', marginBottom: '8px', color: 'var(--bg-dark)', textAlign: 'center' }}>
+                Cambiar Contraseña de Administrador
+              </h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', marginBottom: '20px' }}>
+                Establece tu propia clave secreta para proteger el panel de administración.
+              </p>
+
+              {passSuccessMessage && (
+                <div style={{ padding: '12px 16px', backgroundColor: '#ECFDF5', border: '1px solid #10B981', color: '#065F46', borderRadius: 'var(--radius-sm)', fontSize: '0.88rem', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <CheckCircle2 size={18} /> {passSuccessMessage}
+                </div>
+              )}
+
+              {passError && (
+                <div style={{ padding: '12px 16px', backgroundColor: '#FEF2F2', border: '1px solid #FCA5A5', color: '#991B1B', borderRadius: 'var(--radius-sm)', fontSize: '0.88rem', marginBottom: '20px' }}>
+                  {passError}
+                </div>
+              )}
+
+              <form onSubmit={handleChangePasswordSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Nueva Contraseña</label>
+                  <input 
+                    type="password"
+                    required
+                    placeholder="Ingresa tu nueva clave..."
+                    value={newPass}
+                    onChange={(e) => setNewPass(e.target.value)}
+                    style={{ width: '100%', padding: '12px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Confirmar Nueva Contraseña</label>
+                  <input 
+                    type="password"
+                    required
+                    placeholder="Repite la nueva clave..."
+                    value={confirmPass}
+                    onChange={(e) => setConfirmPass(e.target.value)}
+                    style={{ width: '100%', padding: '12px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px' }}
+                  />
+                </div>
+
+                <button type="submit" className="btn-primary-gold" style={{ justifyContent: 'center', padding: '12px' }}>
+                  <Save size={18} /> Guardar Nueva Contraseña
+                </button>
+              </form>
+            </div>
+          )}
+
+          {activeTab === 'probador-youtube' && (
             <div>
               <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', marginBottom: '12px', color: 'var(--bg-dark)' }}>
                 Previsualizador de Vídeos de YouTube

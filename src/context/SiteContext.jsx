@@ -4,9 +4,10 @@ import { churchInfo, interactiveStudies, downloadableResources, sermonSeries, se
 const SiteContext = createContext();
 
 export function SiteProvider({ children }) {
-  // Admin Auth State
+  // Admin Auth State & Custom Password
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [isEditModeActive, setIsEditModeActive] = useState(true);
+  const [adminPassword, setAdminPassword] = useState('pastor123'); // Default password, editable in Admin Panel
 
   // Editable Hero Section Data
   const [heroData, setHeroData] = useState({
@@ -84,6 +85,8 @@ export function SiteProvider({ children }) {
   const addTestimony = (newT) => setTestimoniesList([newT, ...testimoniesList]);
   const deleteTestimony = (id) => setTestimoniesList(testimoniesList.filter(t => t.id !== id));
 
+  const updateAdminPassword = (newPass) => setAdminPassword(newPass);
+
   const toggleSection = (sectionKey) => {
     setSectionVisibility(prev => ({
       ...prev,
@@ -97,6 +100,8 @@ export function SiteProvider({ children }) {
       setIsAdminLoggedIn,
       isEditModeActive,
       setIsEditModeActive,
+      adminPassword,
+      updateAdminPassword,
       heroData,
       updateHero,
       ministerBioData,
