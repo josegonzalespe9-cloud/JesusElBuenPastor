@@ -7,9 +7,9 @@ export function SiteProvider({ children }) {
   // Admin Auth State & Custom Password
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [isEditModeActive, setIsEditModeActive] = useState(true);
-  const [adminPassword, setAdminPassword] = useState('pastor123'); // Default password, editable in Admin Panel
+  const [adminPassword, setAdminPassword] = useState('pastor123');
 
-  // Editable Hero Section Data
+  // 1. Hero Section Data
   const [heroData, setHeroData] = useState({
     title: "PROFUNDIZA TU FE",
     subtitle: "Explora materiales descargables, guías de devoción diaria y estudios bíblicos interactivos diseñados para transformar tu vida espiritual.",
@@ -17,7 +17,32 @@ export function SiteProvider({ children }) {
     badge: "PREDICANDO LA PALABRA DE DIOS"
   });
 
-  // Editable Evangelist / Minister Bio
+  // 2. Action Cards Data (Editable)
+  const [actionCardsData, setActionCardsData] = useState([
+    {
+      id: "card-1",
+      title: "GUÍAS DESCARGABLES",
+      desc: "Notas de estudio en formato PDF, guías de discusión para células o grupos pequeños.",
+      buttonText: "EXPLORAR RECURSOS",
+      type: "recursos"
+    },
+    {
+      id: "card-2",
+      title: "ESTUDIO BÍBLICO INTERACTIVO",
+      desc: "Estudios guiados por módulos interactivos con lecciones en vídeo de YouTube y cuestionarios.",
+      buttonText: "VER MÓDULOS",
+      type: "estudios"
+    },
+    {
+      id: "card-3",
+      title: "RUTAS DE APRENDIZAJE",
+      desc: "Secuencias estructuradas paso a paso, desde nivel principiante hasta estudios avanzados.",
+      buttonText: "COMENZAR RUTA",
+      type: "estudios"
+    }
+  ]);
+
+  // 3. Evangelist / Minister Bio
   const [ministerBioData, setMinisterBioData] = useState({
     title: "BIENVENIDOS AL MINISTERIO EVANGÉLICO",
     authorName: churchInfo.pastors.names,
@@ -25,10 +50,10 @@ export function SiteProvider({ children }) {
     avatarUrl: churchInfo.pastors.avatarUrl
   });
 
-  // Interactive Studies List (Add, Edit, Delete)
+  // 4. Interactive Studies List (CRUD)
   const [studiesList, setStudiesList] = useState(interactiveStudies);
 
-  // News List (Add, Edit, Delete)
+  // 5. News List (CRUD)
   const [newsList, setNewsList] = useState([
     {
       id: "news-1",
@@ -52,39 +77,83 @@ export function SiteProvider({ children }) {
     }
   ]);
 
-  // Sermons List (Add, Edit, Delete)
+  // 6. Sermons List (CRUD)
   const [sermonsList, setSermonsList] = useState(sermonLibrary);
 
-  // Testimonies List (Add, Edit, Delete)
+  // 7. PDF Resources List (CRUD)
+  const [pdfList, setPdfList] = useState(downloadableResources);
+
+  // 8. Testimonies List (CRUD)
   const [testimoniesList, setTestimoniesList] = useState(testimonies);
 
-  // Section Visibilities
+  // 9. Comments List (CRUD)
+  const [commentsList, setCommentsList] = useState([
+    {
+      id: 1,
+      author: "Hermano Carlos R.",
+      date: "Hace 2 horas",
+      category: "Petición de Oración",
+      content: "Pido oración por la salud de mi madre María y la restauración de nuestra familia. Dios los bendiga grandemente por este ministerio.",
+      likes: 8
+    },
+    {
+      id: 2,
+      author: "Hermana Ana M.",
+      date: "Hace 5 horas",
+      category: "Testimonio",
+      content: "Doy gracias a Dios porque el estudio del libro de Romanos ha transformado mi manera de comprender la fe y la gracia.",
+      likes: 15
+    }
+  ]);
+
+  // Section Visibilities Toggle
   const [sectionVisibility, setSectionVisibility] = useState({
     hero: true,
     actionCards: true,
     studies: true,
     news: true,
     sermons: true,
+    resources: true,
     testimonies: true,
     comments: true
   });
 
-  // Actions
+  // State Updaters & Handlers
   const updateHero = (data) => setHeroData(prev => ({ ...prev, ...data }));
   const updateMinisterBio = (data) => setMinisterBioData(prev => ({ ...prev, ...data }));
 
-  const addStudy = (newStudy) => setStudiesList([newStudy, ...studiesList]);
+  // Studies CRUD
+  const addStudy = (item) => setStudiesList([item, ...studiesList]);
+  const updateStudy = (id, updated) => setStudiesList(studiesList.map(s => s.id === id ? { ...s, ...updated } : s));
   const deleteStudy = (id) => setStudiesList(studiesList.filter(s => s.id !== id));
 
-  const addSermon = (newSermon) => setSermonsList([newSermon, ...sermonsList]);
-  const deleteSermon = (id) => setSermonsList(sermonsList.filter(s => s.id !== id));
-
-  const addNews = (newNews) => setNewsList([newNews, ...newsList]);
+  // News CRUD
+  const addNews = (item) => setNewsList([item, ...newsList]);
+  const updateNews = (id, updated) => setNewsList(newsList.map(n => n.id === id ? { ...n, ...updated } : n));
   const deleteNews = (id) => setNewsList(newsList.filter(n => n.id !== id));
 
-  const addTestimony = (newT) => setTestimoniesList([newT, ...testimoniesList]);
+  // Sermons CRUD
+  const addSermon = (item) => setSermonsList([item, ...sermonsList]);
+  const updateSermon = (id, updated) => setSermonsList(sermonsList.map(s => s.id === id ? { ...s, ...updated } : s));
+  const deleteSermon = (id) => setSermonsList(sermonsList.filter(s => s.id !== id));
+
+  // PDF Resources CRUD
+  const addPdf = (item) => setPdfList([item, ...pdfList]);
+  const updatePdf = (id, updated) => setPdfList(pdfList.map(p => p.id === id ? { ...p, ...updated } : p));
+  const deletePdf = (id) => setPdfList(pdfList.filter(p => p.id !== id));
+
+  // Testimonies CRUD
+  const addTestimony = (item) => setTestimoniesList([item, ...testimoniesList]);
   const deleteTestimony = (id) => setTestimoniesList(testimoniesList.filter(t => t.id !== id));
 
+  // Comments CRUD
+  const addComment = (item) => setCommentsList([item, ...commentsList]);
+  const deleteComment = (id) => setCommentsList(commentsList.filter(c => c.id !== id));
+
+  // Action Cards CRUD
+  const updateActionCard = (id, updated) => setActionCardsData(actionCardsData.map(c => c.id === id ? { ...c, ...updated } : c));
+
+  // Admin Password
   const updateAdminPassword = (newPass) => setAdminPassword(newPass);
 
   const toggleSection = (sectionKey) => {
@@ -104,20 +173,32 @@ export function SiteProvider({ children }) {
       updateAdminPassword,
       heroData,
       updateHero,
+      actionCardsData,
+      updateActionCard,
       ministerBioData,
       updateMinisterBio,
       studiesList,
       addStudy,
+      updateStudy,
       deleteStudy,
       newsList,
       addNews,
+      updateNews,
       deleteNews,
       sermonsList,
       addSermon,
+      updateSermon,
       deleteSermon,
+      pdfList,
+      addPdf,
+      updatePdf,
+      deletePdf,
       testimoniesList,
       addTestimony,
       deleteTestimony,
+      commentsList,
+      addComment,
+      deleteComment,
       sectionVisibility,
       toggleSection
     }}>

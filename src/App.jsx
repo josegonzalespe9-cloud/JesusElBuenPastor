@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
+import AdminToolbar from './components/AdminToolbar';
 import HeroSection from './components/HeroSection';
 import ActionCards from './components/ActionCards';
 import InteractiveStudies from './components/InteractiveStudies';
@@ -53,6 +54,13 @@ export default function App() {
 
   return (
     <div className="app-main-layout">
+      {/* Top Fixed Admin Editor Bar */}
+      <AdminToolbar 
+        onOpenAddNews={() => setIsAddNewsOpen(true)}
+        onOpenAddStudy={() => setIsAddStudyOpen(true)}
+        onOpenAdminPanel={() => setIsAdminPanelOpen(true)}
+      />
+
       {/* Navbar Header */}
       <Navbar 
         activeTab={activeTab} 

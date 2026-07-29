@@ -1,237 +1,186 @@
 import React, { useState } from 'react';
-import { MessageSquare, ThumbsUp, Send, User, Heart, Sparkles, Filter } from 'lucide-react';
+import { MessageSquare, Heart, Send, CheckCircle2, User, Filter, Trash2 } from 'lucide-react';
+import { useSite } from '../context/SiteContext';
 
 export default function CommentsSection() {
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      name: "Hermana Gloria Morales",
-      date: "Hace 2 horas",
-      type: "Petición de Oración",
-      message: "Pido la oración de la congregación por la salud de mi madre Elizabeth que está hospitalizada. Sabemos que en el nombre de Jesús hay poder y sanidad.",
-      likes: 12,
-      userLiked: false
-    },
-    {
-      id: 2,
-      name: "Hermano Roberto Mendoza",
-      date: "Hace 1 día",
-      type: "Agradecimiento",
-      message: "Doy gracias a Dios por la lección sobre la paz en Juan 14 del módulo interactivo. Trajo consuelo en un momento muy duro para mi familia.",
-      likes: 8,
-      userLiked: false
-    },
-    {
-      id: 3,
-      name: "Andrea & Pedro Silva",
-      date: "Hace 2 días",
-      type: "Comentario",
-      message: "Excelente predicación de los pastores el pasado domingo sobre el Salmo 23. Las enseñanzas en vídeo y la guía en PDF nos ayudan mucho en nuestro altar familiar.",
-      likes: 15,
-      userLiked: false
-    }
-  ]);
+  const { commentsList, addComment, deleteComment, isAdminLoggedIn } = useSite();
+  const [filterCategory, setFilterCategory] = useState('Todos');
+  const [authorName, setAuthorName] = useState('');
+  const [category, setCategory] = useState('Petición de Oración');
+  const [commentText, setCommentText] = useState('');
+  const [submittedMessage, setSubmittedMessage] = useState('');
 
-  const [filterType, setFilterType] = useState('Todos');
-  const [newComment, setNewComment] = useState({
-    name: '',
-    type: 'Comentario',
-    message: ''
-  });
-  const [showSuccessMsg, setShowSuccessMsg] = useState(false);
-
-  const handleLike = (id) => {
-    setComments(comments.map(c => {
-      if (c.id === id) {
-        return {
-          ...c,
-          likes: c.userLiked ? c.likes - 1 : c.likes + 1,
-          userLiked: !c.userLiked
-        };
-      }
-      return c;
-    }));
-  };
+  const filteredComments = commentsList.filter(item => 
+    filterCategory === 'Todos' || item.category === filterCategory
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!newComment.name.trim() || !newComment.message.trim()) return;
+    if (!commentText.trim()) return;
 
-    const item = {
+    const newCommentObj = {
       id: Date.now(),
-      name: newComment.name,
-      date: "Justo ahora",
-      type: newComment.type,
-      message: newComment.message,
-      likes: 0,
-      userLiked: false
+      author: authorName.trim() ? authorName : 'Hermano/a en Cristo',
+      date: 'Hace un momento',
+      category: category,
+      content: commentText,
+      likes: 1
     };
 
-    setComments([item, ...comments]);
-    setNewComment({ name: '', type: 'Comentario', message: '' });
-    setShowSuccessMsg(true);
-    setTimeout(() => setShowSuccessMsg(false), 4000);
-  };
+    addComment(newCommentObj);
+    setSubmittedMessage('¡Tu comentario u oración ha sido publicado en la comunidad!');
+    setCommentText('');
+    setAuthorName('');
 
-  const filteredComments = comments.filter(c => 
-    filterType === 'Todos' || c.type === filterType
-  );
+    setTimeout(() => setSubmittedMessage(''), 4000);
+  };
 
   return (
     <section className="section-padding" id="comentarios" style={{ backgroundColor: '#FAF7F2', borderTop: '1px solid var(--border-light)' }}>
       <div className="section-container">
-        {/* Title */}
-        <div style={{ textAlign: 'center', maxWidth: '750px', margin: '0 auto 40px auto' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--primary-gold)', fontSize: '0.82rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>
-            <Sparkles size={16} /> Comunidad de Fe
+        
+        {/* Section Header */}
+        <div className="section-header-row">
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--primary-gold)', fontSize: '0.82rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px' }}>
+              <MessageSquare size={16} /> Edificación Mutua
+            </div>
+            <h2 className="section-title">COMUNIDAD Y PETICIONES DE ORACIÓN</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', marginTop: '4px' }}>
+              Déjanos tu opinión, pide oración o comparte una palabra de aliento con los demás hermanos.
+            </p>
           </div>
-          <h2 className="section-title" style={{ fontSize: '1.8rem' }}>COMENTARIOS Y PETICIONES DE ORACIÓN</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-            Un espacio para compartir lo que Dios está haciendo en tu vida, dejar tus peticiones de oración y bendecir a otros hermanos.
-          </p>
         </div>
 
-        <div className="two-col-layout" style={{ gridTemplateColumns: '1fr 1.2fr', gap: '32px' }}>
-          {/* Left Column: Form */}
-          <div style={{ backgroundColor: '#FFFFFF', padding: '28px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-sm)' }}>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', marginBottom: '16px', color: 'var(--bg-dark)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <MessageSquare size={20} color="var(--primary-gold)" /> Déjanos tu Comentario u Oración
-            </h3>
-
-            {showSuccessMsg && (
-              <div style={{ padding: '12px 16px', backgroundColor: '#ECFDF5', border: '1px solid #10B981', borderRadius: 'var(--radius-sm)', color: '#065F46', fontSize: '0.85rem', marginBottom: '16px' }}>
-                ¡Tu comentario ha sido publicado con éxito en la comunidad!
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Tu Nombre o Familia</label>
-                <input 
-                  type="text" 
-                  required 
-                  placeholder="Ej: Hermano Juan / Familia Gómez" 
-                  value={newComment.name}
-                  onChange={(e) => setNewComment({ ...newComment, name: e.target.value })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px' }}
-                />
-              </div>
-
-              <div>
-                <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Tipo de Mensaje</label>
-                <select 
-                  value={newComment.type}
-                  onChange={(e) => setNewComment({ ...newComment, type: e.target.value })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px', backgroundColor: '#FFFFFF' }}
-                >
-                  <option value="Comentario">Comentario / Reflexión</option>
-                  <option value="Petición de Oración">Petición de Oración</option>
-                  <option value="Agradecimiento">Agradecimiento / Testimonio Corto</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Tu Mensaje</label>
-                <textarea 
-                  required 
-                  rows={4} 
-                  placeholder="Escribe tu comentario o petición para que la comunidad ore por ti..." 
-                  value={newComment.message}
-                  onChange={(e) => setNewComment({ ...newComment, message: e.target.value })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px', fontFamily: 'inherit' }}
-                />
-              </div>
-
-              <button type="submit" className="btn-primary-gold" style={{ justifyContent: 'center', marginTop: '4px' }}>
-                <Send size={16} /> Publicar Mensaje
-              </button>
-            </form>
-          </div>
-
-          {/* Right Column: List of Comments */}
+        <div className="two-col-layout" style={{ gridTemplateColumns: '1.4fr 1fr', gap: '32px' }}>
+          
+          {/* Left Column: Comments List */}
           <div>
-            {/* Filter Tabs */}
+            {/* Filter Pills */}
             <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginRight: '4px' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px', marginRight: '4px' }}>
                 <Filter size={14} /> Filtrar:
               </span>
-              {['Todos', 'Comentario', 'Petición de Oración', 'Agradecimiento'].map(t => (
+              {['Todos', 'Petición de Oración', 'Testimonio', 'Agradecimiento'].map(cat => (
                 <button
-                  key={t}
-                  onClick={() => setFilterType(t)}
+                  key={cat}
+                  onClick={() => setFilterCategory(cat)}
                   style={{
-                    padding: '6px 12px',
+                    padding: '5px 14px',
                     borderRadius: '9999px',
                     fontSize: '0.78rem',
                     fontWeight: '600',
                     border: '1px solid',
-                    borderColor: filterType === t ? 'var(--primary-gold)' : 'var(--border-light)',
-                    backgroundColor: filterType === t ? 'var(--primary-gold-light)' : '#FFFFFF',
-                    color: filterType === t ? 'var(--primary-gold)' : 'var(--text-muted)'
+                    borderColor: filterCategory === cat ? 'var(--primary-gold)' : 'var(--border-light)',
+                    backgroundColor: filterCategory === cat ? 'var(--primary-gold)' : '#FFFFFF',
+                    color: filterCategory === cat ? '#FFFFFF' : 'var(--text-muted)'
                   }}
                 >
-                  {t}
+                  {cat}
                 </button>
               ))}
             </div>
 
             {/* Comments List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {filteredComments.map(c => (
-                <div key={c.id} style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', padding: '20px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-sm)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+              {filteredComments.map(comment => (
+                <div key={comment.id} style={{ backgroundColor: '#FFFFFF', padding: '20px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-sm)', position: 'relative' }}>
+                  {isAdminLoggedIn && (
+                    <button 
+                      onClick={() => deleteComment(comment.id)}
+                      style={{ position: 'absolute', top: '12px', right: '12px', backgroundColor: '#EF4444', color: '#FFFFFF', border: 'none', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                      title="Eliminar Comentario"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'var(--primary-gold-light)', color: 'var(--primary-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <User size={20} />
                       </div>
                       <div>
-                        <div style={{ fontWeight: '700', fontSize: '0.92rem', color: 'var(--bg-dark)' }}>{c.name}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{c.date}</div>
+                        <div style={{ fontWeight: '700', fontSize: '0.92rem', color: 'var(--bg-dark)' }}>{comment.author}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{comment.date}</div>
                       </div>
                     </div>
 
-                    <span 
-                      style={{ 
-                        fontSize: '0.72rem', 
-                        fontWeight: '700', 
-                        padding: '4px 10px', 
-                        borderRadius: '9999px',
-                        backgroundColor: c.type === 'Petición de Oración' ? '#FEF2F2' : c.type === 'Agradecimiento' ? '#ECFDF5' : '#F1F5F9',
-                        color: c.type === 'Petición de Oración' ? '#DC2626' : c.type === 'Agradecimiento' ? '#059669' : '#475569'
-                      }}
-                    >
-                      {c.type}
+                    <span style={{ fontSize: '0.72rem', padding: '3px 10px', borderRadius: '9999px', backgroundColor: 'var(--primary-gold-light)', color: 'var(--primary-gold)', fontWeight: '700', textTransform: 'uppercase' }}>
+                      {comment.category}
                     </span>
                   </div>
 
-                  <p style={{ fontSize: '0.9rem', color: 'var(--text-dark)', lineHeight: '1.5', marginBottom: '14px' }}>
-                    "{c.message}"
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-dark)', lineHeight: '1.6', marginBottom: '14px' }}>
+                    {comment.content}
                   </p>
 
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <button 
-                      onClick={() => handleLike(c.id)}
-                      style={{ 
-                        fontSize: '0.8rem', 
-                        fontWeight: '600', 
-                        color: c.userLiked ? 'var(--primary-gold)' : 'var(--text-muted)', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '6px',
-                        padding: '4px 10px',
-                        borderRadius: 'var(--radius-pill)',
-                        backgroundColor: c.userLiked ? 'var(--primary-gold-light)' : 'transparent',
-                        border: '1px solid',
-                        borderColor: c.userLiked ? 'var(--primary-gold-border)' : 'var(--border-light)'
-                      }}
-                    >
-                      <ThumbsUp size={14} fill={c.userLiked ? 'var(--primary-gold)' : 'none'} /> {c.likes} {c.likes === 1 ? 'Me gusta' : 'Me gusta'}
-                    </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+                    <Heart size={15} color="#EF4444" fill="#EF4444" /> {comment.likes} personas están orando / apoyan esto
                   </div>
                 </div>
               ))}
             </div>
           </div>
+
+          {/* Right Column: New Comment Form */}
+          <div style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', height: 'fit-content', boxShadow: 'var(--shadow-sm)' }}>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.15rem', color: 'var(--bg-dark)', marginBottom: '6px' }}>
+              Escribir un Comentario o Petición
+            </h3>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '18px' }}>
+              Tu mensaje será visible para que todos los hermanos puedan unirse en oración.
+            </p>
+
+            {submittedMessage && (
+              <div style={{ padding: '10px 14px', backgroundColor: '#ECFDF5', border: '1px solid #10B981', color: '#065F46', borderRadius: 'var(--radius-sm)', fontSize: '0.82rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <CheckCircle2 size={16} /> {submittedMessage}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Tu Nombre o Seudónimo</label>
+                <input 
+                  type="text" 
+                  placeholder="Ej: Hermano Juan / Anónimo" 
+                  value={authorName}
+                  onChange={(e) => setAuthorName(e.target.value)}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px', fontSize: '0.88rem' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Categoría</label>
+                <select 
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px', fontSize: '0.88rem', backgroundColor: '#FFFFFF' }}
+                >
+                  <option value="Petición de Oración">Petición de Oración</option>
+                  <option value="Testimonio">Testimonio</option>
+                  <option value="Agradecimiento">Agradecimiento</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Tu Mensaje u Oración</label>
+                <textarea 
+                  required 
+                  rows={4} 
+                  placeholder="Escribe tu mensaje aquí..." 
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px', fontSize: '0.88rem', fontFamily: 'inherit' }}
+                />
+              </div>
+
+              <button type="submit" className="btn-primary-gold" style={{ justifyContent: 'center', padding: '12px', fontSize: '0.88rem' }}>
+                <Send size={16} /> Publicar Comentario
+              </button>
+            </form>
+          </div>
+
         </div>
       </div>
     </section>

@@ -1,230 +1,313 @@
 import React, { useState } from 'react';
-import { 
-  Headphones, Play, Pause, Volume2, Video, Search, Calendar, 
-  BookOpen, Lightbulb, Award, Share2, Quote, MessageSquare, PlusCircle 
-} from 'lucide-react';
-import { sermonSeries, sermonLibrary, testimonies } from '../data/churchData';
+import { PlayCircle, Mic, Video, Volume2, Share2, PlusCircle, Sparkles, MessageSquare, Quote, Heart, Edit3, Trash2, Save, X } from 'lucide-react';
+import { sermonSeries } from '../data/churchData';
+import { useSite } from '../context/SiteContext';
 
-export default function SermonModule({ onPlayAudio, onWatchYoutube, onShareStory }) {
-  const [currentPlayingId, setCurrentPlayingId] = useState('sermon-1');
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+export default function SermonModule({ onWatchYoutube, onShareStory }) {
+  const { sermonsList, updateSermon, deleteSermon, testimoniesList, deleteTestimony, isAdminLoggedIn } = useSite();
+  const [selectedSeries, setSelectedSeries] = useState('Todas');
+  const [currentlyPlayingAudio, setCurrentlyPlayingAudio] = useState(null);
+  const [editingSermon, setEditingSermon] = useState(null);
 
-  const activeSermon = sermonLibrary.find(s => s.id === currentPlayingId) || sermonLibrary[0];
+  const [editForm, setEditForm] = useState({
+    title: '',
+    speaker: '',
+    series: '',
+    youtubeId: '',
+    summary: ''
+  });
 
-  const handleTogglePlay = (sermon) => {
-    if (currentPlayingId === sermon.id) {
-      setIsPlaying(!isPlaying);
+  const filteredSermons = sermonsList.filter(sermon => 
+    selectedSeries === 'Todas' || sermon.series === selectedSeries
+  );
+
+  const handlePlayAudio = (sermon) => {
+    if (currentlyPlayingAudio?.id === sermon.id) {
+      setCurrentlyPlayingAudio(null);
     } else {
-      setCurrentPlayingId(sermon.id);
-      setIsPlaying(true);
-    }
-    if (onPlayAudio) {
-      onPlayAudio(sermon);
+      setCurrentlyPlayingAudio(sermon);
     }
   };
 
-  const filteredSermons = sermonLibrary.filter(s => 
-    s.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.speaker.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleStartEditSermon = (sermon) => {
+    setEditingSermon(sermon);
+    setEditForm({
+      title: sermon.title,
+      speaker: sermon.speaker,
+      series: sermon.series,
+      youtubeId: sermon.youtubeId,
+      summary: sermon.summary
+    });
+  };
+
+  const handleSaveSermon = (e) => {
+    e.preventDefault();
+    if (!editingSermon) return;
+    updateSermon(editingSermon.id, editForm);
+    setEditingSermon(null);
+  };
 
   return (
-    <div id="sermones">
-      {/* Sermons Hero Banner (Dark Theme like Image 2) */}
-      <section className="sermons-hero-banner">
-        <div className="sermons-hero-container">
-          <div className="sermons-hero-graphic">
-            <div style={{ padding: '16px', borderRadius: '50%', backgroundColor: 'rgba(184, 142, 76, 0.2)', border: '2px solid var(--primary-gold)' }}>
-              <Headphones size={42} color="var(--primary-gold)" />
-            </div>
-          </div>
-          
-          <h1 className="sermons-hero-title">
-            EXPLORA LA PALABRA DE DIOS A TRAVÉS DEL SONIDO Y VÍDEO
-          </h1>
-          <p className="sermons-hero-sub">
-            UNA NUEVA EXPERIENCIA DE SERMONES EN AUDIO Y VÍDEO EN VIVO
-          </p>
-
-          {/* Featured Sermon Series Grid (Image 2 style) */}
-          <div className="featured-series-grid">
-            {sermonSeries.map(series => (
-              <div key={series.id} className="series-card">
-                <div className="series-card-icon">
-                  {series.iconName === 'BookOpen' && <BookOpen size={24} />}
-                  {series.iconName === 'Lightbulb' && <Lightbulb size={24} />}
-                  {series.iconName === 'Award' && <Award size={24} />}
-                </div>
-                <h3 className="series-card-title">{series.title}</h3>
-                <p className="series-card-desc">{series.subtitle}</p>
-                <div style={{ marginTop: '12px', fontSize: '0.75rem', color: 'var(--primary-gold)', fontWeight: '600' }}>
-                  {series.totalSermons} Predicaciones
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Audio & Video Player Bar Section (Image 2 style) */}
-      <section className="section-padding" style={{ backgroundColor: 'var(--bg-main)' }}>
-        <div className="section-container">
-          <div className="player-bar-container">
-            <div className="player-header">
-              <div>
-                <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--primary-gold)', fontWeight: '700', letterSpacing: '0.1em' }}>
-                  Reproductor de Audio y Vídeo de Sermones:
-                </span>
-                <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', color: 'var(--bg-dark)', marginTop: '4px' }}>
-                  {activeSermon.title}
-                </h3>
-              </div>
-
-              {/* YouTube Video Watch Button */}
-              <button 
-                onClick={() => onWatchYoutube(activeSermon.youtubeId, activeSermon.title)} 
-                className="btn-watch-video"
-              >
-                <Video size={16} /> Ver Vídeo en YouTube
-              </button>
-            </div>
-
-            <div className="player-now-playing">
-              <button 
-                onClick={() => handleTogglePlay(activeSermon)} 
-                className="btn-play-large"
-                title={isPlaying ? "Pausar" : "Escuchar en Audio"}
-              >
-                {isPlaying ? <Pause size={28} /> : <Play size={28} style={{ marginLeft: '4px' }} />}
-              </button>
-
-              <div style={{ flexGrow: 1 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
-                  <span>Predicador: <strong>{activeSermon.speaker}</strong></span>
-                  <span>Fecha: {activeSermon.date} | Duración: {activeSermon.duration}</span>
-                </div>
-
-                {/* Progress Bar Simulation */}
-                <div style={{ height: '8px', width: '100%', backgroundColor: 'var(--border-light)', borderRadius: '9999px', overflow: 'hidden' }}>
-                  <div style={{ width: isPlaying ? '45%' : '0%', height: '100%', backgroundColor: 'var(--bg-dark)', transition: 'width 0.4s ease' }}></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Sermon Library List (Image 2 style) */}
+    <section className="section-padding" id="sermones" style={{ backgroundColor: 'var(--bg-dark-section)', color: '#FFFFFF' }}>
+      <div className="section-container">
+        
+        {/* Section Header */}
+        <div className="section-header-row">
           <div>
-            <div className="section-header-row" style={{ marginBottom: '24px' }}>
-              <h2 className="section-title" style={{ fontSize: '1.3rem' }}>UNA LIBRERÍA DE SERMONES</h2>
-              <div className="filter-search-box">
-                <Search size={18} color="var(--text-muted)" />
-                <input 
-                  type="text" 
-                  placeholder="Buscar prédica por tema o predicador..." 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--primary-gold)', fontSize: '0.82rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px' }}>
+              <Video size={16} /> Predicación y Alabanza
             </div>
-
-            <div className="sermon-list">
-              {filteredSermons.map(sermon => (
-                <div key={sermon.id} className="sermon-row-item">
-                  <div className="sermon-info">
-                    <button 
-                      onClick={() => handleTogglePlay(sermon)} 
-                      style={{ 
-                        width: '40px', 
-                        height: '40px', 
-                        borderRadius: '50%', 
-                        backgroundColor: currentPlayingId === sermon.id && isPlaying ? 'var(--primary-gold)' : 'var(--bg-dark)', 
-                        color: '#FFFFFF', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center' 
-                      }}
-                    >
-                      {currentPlayingId === sermon.id && isPlaying ? <Pause size={18} /> : <Play size={18} style={{ marginLeft: '2px' }} />}
-                    </button>
-                    <div>
-                      <div className="sermon-title-text">{sermon.title}</div>
-                      <div className="sermon-sub-text">{sermon.speaker} • {sermon.series}</div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{sermon.date}</span>
-                    <button 
-                      onClick={() => onWatchYoutube(sermon.youtubeId, sermon.title)} 
-                      style={{ fontSize: '0.8rem', color: '#E11D48', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}
-                    >
-                      <Video size={16} /> Ver Vídeo
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Faith Testimonies Section (Image 2 style) */}
-      <section className="testimonies-section" id="testimonios">
-        <div className="section-container">
-          <div style={{ textAlign: 'center', maxWidth: '700px', margin: '0 auto 40px auto' }}>
-            <h2 className="section-title" style={{ fontSize: '1.8rem' }}>TESTIMONIOS DE FE</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
-              HISTORIAS REALES, FE PROFUNDA. EXPERIMENTA EL PODER DE LA GRACIA DE DIOS EN LAS VIDAS DE NUESTRA COMUNIDAD.
+            <h2 className="section-title" style={{ color: '#FFFFFF' }}>SERMONES Y MENSAJES EN VÍDEO</h2>
+            <p style={{ color: '#94A3B8', fontSize: '0.92rem', marginTop: '4px' }}>
+              Escucha mensajes transformadores en vídeo o audio para fortalecer tu fe en Cristo.
             </p>
           </div>
+        </div>
 
-          <div className="testimonies-grid">
-            {testimonies.map(t => (
-              <div key={t.id} className="testimony-card">
-                <div>
-                  {/* YouTube Video Thumbnail Preview */}
-                  <div 
-                    className="testimony-video-preview" 
-                    onClick={() => onWatchYoutube(t.youtubeId, `Testimonio de ${t.author}`)}
-                    style={{ marginBottom: '16px' }}
+        {/* Sermon Series Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '40px' }}>
+          {sermonSeries.map(series => (
+            <div key={series.id} className="sermon-series-card">
+              <img src={series.thumbnail} alt={series.title} />
+              <div className="sermon-series-overlay">
+                <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--primary-gold)', fontWeight: '700' }}>
+                  {series.sermonCount}
+                </span>
+                <h3 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-serif)', color: '#FFFFFF', margin: '4px 0' }}>
+                  {series.title}
+                </h3>
+                <p style={{ fontSize: '0.82rem', color: '#CBD5E1' }}>{series.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Audio / Video Active Player Bar */}
+        {currentlyPlayingAudio && (
+          <div className="audio-player-bar" style={{ marginBottom: '40px', backgroundColor: 'var(--bg-dark-card)', padding: '20px', borderRadius: 'var(--radius-md)', border: '1px solid var(--primary-gold-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'var(--primary-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Volume2 size={24} color="#FFFFFF" />
+              </div>
+              <div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--primary-gold)', fontWeight: '700', textTransform: 'uppercase' }}>Reproduciendo Audio</span>
+                <h4 style={{ color: '#FFFFFF', fontSize: '1rem', margin: 0 }}>{currentlyPlayingAudio.title}</h4>
+                <span style={{ fontSize: '0.8rem', color: '#94A3B8' }}>{currentlyPlayingAudio.speaker}</span>
+              </div>
+            </div>
+
+            <audio controls autoPlay src={currentlyPlayingAudio.audioUrl} style={{ maxWidth: '320px', height: '40px' }} />
+          </div>
+        )}
+
+        {/* Sermons Library List */}
+        <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', color: '#FFFFFF', marginBottom: '20px' }}>
+          LIBRERÍA DE MENSAJES RECIENTES
+        </h3>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '60px' }}>
+          {filteredSermons.map(sermon => (
+            <div 
+              key={sermon.id} 
+              style={{ 
+                backgroundColor: 'var(--bg-dark-card)', 
+                borderRadius: 'var(--radius-md)', 
+                padding: '20px', 
+                border: '1px solid var(--border-dark)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '16px',
+                position: 'relative'
+              }}
+            >
+              {isAdminLoggedIn && (
+                <div style={{ position: 'absolute', top: '12px', right: '12px', display: 'flex', gap: '6px' }}>
+                  <button 
+                    onClick={() => handleStartEditSermon(sermon)}
+                    style={{ backgroundColor: '#2563EB', color: '#FFFFFF', border: 'none', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                    title="Editar Sermón"
                   >
-                    <img src={t.thumbnail} alt={t.author} />
-                    <div className="video-play-overlay">
-                      <div className="play-circle-icon">
-                        <Play size={24} fill="#FF0000" />
-                      </div>
-                    </div>
-                  </div>
+                    <Edit3 size={14} />
+                  </button>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--primary-gold)', marginBottom: '8px' }}>
-                    <Quote size={16} />
-                    <span style={{ fontSize: '0.78rem', fontWeight: '700', textTransform: 'uppercase' }}>{t.tag}</span>
-                  </div>
-                  <p className="testimony-quote">"{t.story}"</p>
+                  <button 
+                    onClick={() => deleteSermon(sermon.id)}
+                    style={{ backgroundColor: '#EF4444', color: '#FFFFFF', border: 'none', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                    title="Eliminar Sermón"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </div>
-                <div className="testimony-author">- {t.author}</div>
+              )}
+
+              <div style={{ maxWidth: '600px' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--primary-gold)', fontWeight: '700', textTransform: 'uppercase' }}>
+                  {sermon.series} • {sermon.date}
+                </span>
+                <h4 style={{ color: '#FFFFFF', fontSize: '1.1rem', margin: '4px 0 6px 0' }}>{sermon.title}</h4>
+                <p style={{ color: '#94A3B8', fontSize: '0.85rem', marginBottom: '8px' }}>{sermon.summary}</p>
+                <div style={{ fontSize: '0.8rem', color: '#CBD5E1', fontWeight: '600' }}>{sermon.speaker}</div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button 
+                  onClick={() => onWatchYoutube(sermon.youtubeId, sermon.title)}
+                  className="btn-watch-video"
+                >
+                  <Video size={16} /> Ver Vídeo en YouTube
+                </button>
+
+                <button 
+                  onClick={() => handlePlayAudio(sermon)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: 'var(--radius-pill)',
+                    fontSize: '0.82rem',
+                    fontWeight: '600',
+                    backgroundColor: currentlyPlayingAudio?.id === sermon.id ? 'var(--primary-gold)' : 'transparent',
+                    color: currentlyPlayingAudio?.id === sermon.id ? '#FFFFFF' : '#94A3B8',
+                    border: '1px solid var(--border-dark)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Mic size={16} /> {currentlyPlayingAudio?.id === sermon.id ? 'Pausar Audio' : 'Escuchar Audio'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Testimonies Section */}
+        <div id="testimonios" style={{ paddingTop: '20px' }}>
+          <div className="section-header-row">
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--primary-gold)', fontSize: '0.82rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px' }}>
+                <Quote size={16} /> Historias de Transformación
+              </div>
+              <h2 className="section-title" style={{ color: '#FFFFFF' }}>TESTIMONIOS DE FE</h2>
+              <p style={{ color: '#94A3B8', fontSize: '0.92rem', marginTop: '4px' }}>
+                Descubre cómo Dios sigue haciendo milagros y transformando vidas hoy.
+              </p>
+            </div>
+
+            <button onClick={onShareStory} className="btn-primary-gold" style={{ fontSize: '0.85rem', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <PlusCircle size={18} /> Compartir mi Historia
+            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+            {testimoniesList.map(item => (
+              <div key={item.id} className="testimony-card" style={{ position: 'relative' }}>
+                {isAdminLoggedIn && (
+                  <button 
+                    onClick={() => deleteTestimony(item.id)}
+                    style={{ position: 'absolute', top: '12px', right: '12px', backgroundColor: '#EF4444', color: '#FFFFFF', border: 'none', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
+                    title="Eliminar Testimonio"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+                  <img src={item.avatar} alt={item.author} style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover' }} />
+                  <div>
+                    <div style={{ color: '#FFFFFF', fontWeight: '700', fontSize: '0.95rem' }}>{item.author}</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--primary-gold)' }}>{item.location} • {item.date}</div>
+                  </div>
+                </div>
+
+                <p style={{ color: '#CBD5E1', fontSize: '0.88rem', lineHeight: '1.6', marginBottom: '16px', fontStyle: 'italic' }}>
+                  "{item.content}"
+                </p>
+
+                {item.youtubeId && (
+                  <button 
+                    onClick={() => onWatchYoutube(item.youtubeId, `Testimonio de ${item.author}`)}
+                    className="btn-watch-video" 
+                    style={{ width: '100%', justifyContent: 'center', fontSize: '0.8rem' }}
+                  >
+                    <PlayCircle size={16} /> Ver Vídeo Testimonio
+                  </button>
+                )}
               </div>
             ))}
+          </div>
+        </div>
+      </div>
 
-            {/* Share Your Story Action Box */}
-            <div className="testimony-card" style={{ backgroundColor: 'var(--bg-dark)', color: '#FFFFFF', textAlign: 'center', justifyContent: 'center', alignItems: 'center' }}>
-              <MessageSquare size={40} color="var(--primary-gold)" style={{ marginBottom: '16px' }} />
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', marginBottom: '8px' }}>¿TIENES UN TESTIMONIO?</h3>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-dark-muted)', marginBottom: '24px' }}>
-                Comparte lo que Dios ha hecho en tu vida para edificar y alentar a la congregación.
-              </p>
-              <button 
-                onClick={onShareStory} 
-                className="btn-primary-gold" 
-                style={{ width: '100%', justifyContent: 'center' }}
-              >
-                <PlusCircle size={18} /> COMPARTIR MI HISTORIA
+      {/* Edit Sermon Modal */}
+      {editingSermon && (
+        <div className="modal-overlay" onClick={() => setEditingSermon(null)}>
+          <div className="modal-content-container" style={{ maxWidth: '600px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Edit3 size={20} color="var(--primary-gold)" />
+                <h3 className="modal-title">Editar Sermón / Prédica</h3>
+              </div>
+              <button onClick={() => setEditingSermon(null)} className="btn-close-modal">
+                <X size={20} />
               </button>
+            </div>
+
+            <div className="modal-body">
+              <form onSubmit={handleSaveSermon} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div>
+                  <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Título del Mensaje</label>
+                  <input 
+                    type="text"
+                    required
+                    value={editForm.title}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px' }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Predicador</label>
+                    <input 
+                      type="text"
+                      required
+                      value={editForm.speaker}
+                      onChange={(e) => setEditForm({ ...editForm, speaker: e.target.value })}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>ID / Enlace de YouTube</label>
+                    <input 
+                      type="text"
+                      required
+                      value={editForm.youtubeId}
+                      onChange={(e) => setEditForm({ ...editForm, youtubeId: e.target.value })}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px' }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Resumen</label>
+                  <textarea 
+                    rows={3}
+                    value={editForm.summary}
+                    onChange={(e) => setEditForm({ ...editForm, summary: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px', fontFamily: 'inherit' }}
+                  />
+                </div>
+
+                <button type="submit" className="btn-primary-gold" style={{ justifyContent: 'center', padding: '12px' }}>
+                  <Save size={18} /> Guardar Cambios del Sermón
+                </button>
+              </form>
             </div>
           </div>
         </div>
-      </section>
-    </div>
+      )}
+    </section>
   );
 }
