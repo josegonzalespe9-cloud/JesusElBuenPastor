@@ -11,13 +11,13 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (password === adminPassword || password === 'admin') {
+    if (password === adminPassword || password === 'miClaveSecreta2026') {
       setError('');
       setPassword('');
       onLoginSuccess();
       onClose();
     } else {
-      setError('Contraseña incorrecta. Intenta nuevamente o consulta con el administrador.');
+      setError('Contraseña incorrecta. Intenta nuevamente.');
     }
   };
 
@@ -41,7 +41,7 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
                 <Key size={26} />
               </div>
               <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-                Ingresa tu contraseña para acceder al panel de edición visual y gestión del ministerio.
+                Ingresa la contraseña de administrador para acceder a la edición en vivo y gestión del sitio web.
               </p>
             </div>
 
@@ -52,11 +52,12 @@ export default function AdminLoginModal({ isOpen, onClose, onLoginSuccess }) {
             )}
 
             <div>
-              <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Contraseña de Administrador</label>
+              <label htmlFor="admin-pass-input" style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Contraseña de Administrador</label>
               <input 
+                id="admin-pass-input"
                 type="password" 
                 required 
-                placeholder="Ingresa clave de administrador" 
+                placeholder="Ingresa clave secreta" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{ width: '100%', padding: '12px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px' }}

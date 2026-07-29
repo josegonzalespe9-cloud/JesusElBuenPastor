@@ -7,7 +7,7 @@ export function SiteProvider({ children }) {
   // Admin Auth State & Custom Password
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [isEditModeActive, setIsEditModeActive] = useState(true);
-  const [adminPassword, setAdminPassword] = useState('pastor123');
+  const [adminPassword, setAdminPassword] = useState('miClaveSecreta2026');
 
   // 1. Hero Section Data
   const [heroData, setHeroData] = useState({
@@ -89,7 +89,7 @@ export function SiteProvider({ children }) {
   // 9. Comments List (CRUD)
   const [commentsList, setCommentsList] = useState([
     {
-      id: 1,
+      id: "comment-1",
       author: "Hermano Carlos R.",
       date: "Hace 2 horas",
       category: "Petición de Oración",
@@ -97,7 +97,7 @@ export function SiteProvider({ children }) {
       likes: 8
     },
     {
-      id: 2,
+      id: "comment-2",
       author: "Hermana Ana M.",
       date: "Hace 5 horas",
       category: "Testimonio",
