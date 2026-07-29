@@ -19,7 +19,7 @@ export default function CommentsSection() {
     if (!commentText.trim()) return;
 
     const newCommentObj = {
-      id: Date.now(),
+      id: `comment-${Date.now()}`,
       author: authorName.trim() ? authorName : 'Hermano/a en Cristo',
       date: 'Hace un momento',
       category: category,
@@ -84,18 +84,44 @@ export default function CommentsSection() {
             {/* Comments List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {filteredComments.map(comment => (
-                <div key={comment.id} style={{ backgroundColor: '#FFFFFF', padding: '20px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-sm)', position: 'relative' }}>
+                <div 
+                  key={comment.id} 
+                  style={{ 
+                    backgroundColor: '#FFFFFF', 
+                    padding: '20px', 
+                    paddingRight: isAdminLoggedIn ? '46px' : '20px',
+                    borderRadius: 'var(--radius-md)', 
+                    border: '1px solid var(--border-light)', 
+                    boxShadow: 'var(--shadow-sm)', 
+                    position: 'relative' 
+                  }}
+                >
                   {isAdminLoggedIn && (
                     <button 
                       onClick={() => deleteComment(comment.id)}
-                      style={{ position: 'absolute', top: '12px', right: '12px', backgroundColor: '#EF4444', color: '#FFFFFF', border: 'none', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                      style={{ 
+                        position: 'absolute', 
+                        top: '14px', 
+                        right: '14px', 
+                        backgroundColor: '#EF4444', 
+                        color: '#FFFFFF', 
+                        border: 'none', 
+                        borderRadius: '50%', 
+                        width: '28px', 
+                        height: '28px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        cursor: 'pointer',
+                        zIndex: 10
+                      }}
                       title="Eliminar Comentario"
                     >
                       <Trash2 size={14} />
                     </button>
                   )}
 
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: 'var(--primary-gold-light)', color: 'var(--primary-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <User size={20} />
@@ -140,8 +166,9 @@ export default function CommentsSection() {
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Tu Nombre o Seudónimo</label>
+                <label htmlFor="author-input" style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Tu Nombre o Seudónimo</label>
                 <input 
+                  id="author-input"
                   type="text" 
                   placeholder="Ej: Hermano Juan / Anónimo" 
                   value={authorName}
@@ -151,8 +178,9 @@ export default function CommentsSection() {
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Categoría</label>
+                <label htmlFor="category-select" style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Categoría</label>
                 <select 
+                  id="category-select"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', marginTop: '4px', fontSize: '0.88rem', backgroundColor: '#FFFFFF' }}
@@ -164,8 +192,9 @@ export default function CommentsSection() {
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Tu Mensaje u Oración</label>
+                <label htmlFor="comment-textarea" style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Tu Mensaje u Oración</label>
                 <textarea 
+                  id="comment-textarea"
                   required 
                   rows={4} 
                   placeholder="Escribe tu mensaje aquí..." 

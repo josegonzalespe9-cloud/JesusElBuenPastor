@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, BookOpen, CheckCircle, HelpCircle, Award, RefreshCw, Video } from 'lucide-react';
+import { X, BookOpen, HelpCircle, Award, RefreshCw } from 'lucide-react';
 
 export default function StudyModuleModal({ studyModule, onClose }) {
   if (!studyModule) return null;
@@ -11,10 +11,10 @@ export default function StudyModuleModal({ studyModule, onClose }) {
 
   const handleSelectOption = (qIndex, optionIndex) => {
     if (submittedQuiz) return;
-    setUserAnswers({
-      ...userAnswers,
+    setUserAnswers(prev => ({
+      ...prev,
       [qIndex]: optionIndex
-    });
+    }));
   };
 
   const calculateScore = () => {
@@ -50,6 +50,7 @@ export default function StudyModuleModal({ studyModule, onClose }) {
 
         <div style={{ display: 'flex', borderBottom: '1px solid var(--border-light)', backgroundColor: '#FAF7F2' }}>
           <button 
+            type="button"
             onClick={() => setActiveTab('leccion')}
             style={{ 
               padding: '14px 24px', 
@@ -62,6 +63,7 @@ export default function StudyModuleModal({ studyModule, onClose }) {
             <BookOpen size={16} style={{ display: 'inline', marginRight: '6px' }} /> 1. Lección y Vídeo
           </button>
           <button 
+            type="button"
             onClick={() => setActiveTab('quiz')}
             style={{ 
               padding: '14px 24px', 
@@ -105,6 +107,7 @@ export default function StudyModuleModal({ studyModule, onClose }) {
                   </div>
 
                   <button 
+                    type="button"
                     onClick={() => setActiveTab('quiz')}
                     className="btn-primary-gold"
                     style={{ width: '100%', justifyContent: 'center' }}
@@ -123,35 +126,39 @@ export default function StudyModuleModal({ studyModule, onClose }) {
               {currentLesson && currentLesson.quiz ? (
                 <div>
                   {currentLesson.quiz.map((q, qIndex) => (
-                    <div key={qIndex} className="quiz-question-box">
+                    <div key={qIndex} className="quiz-question-box" style={{ marginBottom: '20px' }}>
                       <div style={{ fontWeight: '600', fontSize: '0.95rem', color: 'var(--bg-dark)', marginBottom: '12px' }}>
                         {qIndex + 1}. {q.question}
                       </div>
 
-                      {q.options.map((opt, optIndex) => {
-                        const isSelected = userAnswers[qIndex] === optIndex;
-                        let optionClass = 'quiz-option-btn';
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {q.options.map((opt, optIndex) => {
+                          const isSelected = userAnswers[qIndex] === optIndex;
+                          let optionClass = 'quiz-option-btn';
 
-                        if (submittedQuiz) {
-                          if (optIndex === q.correctAnswer) {
-                            optionClass += ' correct';
-                          } else if (isSelected && optIndex !== q.correctAnswer) {
-                            optionClass += ' incorrect';
+                          if (submittedQuiz) {
+                            if (optIndex === q.correctAnswer) {
+                              optionClass += ' correct';
+                            } else if (isSelected && optIndex !== q.correctAnswer) {
+                              optionClass += ' incorrect';
+                            }
+                          } else if (isSelected) {
+                            optionClass += ' selected';
                           }
-                        } else if (isSelected) {
-                          optionClass += ' selected';
-                        }
 
-                        return (
-                          <button
-                            key={optIndex}
-                            className={optionClass}
-                            onClick={() => handleSelectOption(qIndex, optIndex)}
-                          >
-                            {opt}
-                          </button>
-                        );
-                      })}
+                          return (
+                            <button
+                              key={optIndex}
+                              type="button"
+                              className={optionClass}
+                              onClick={() => handleSelectOption(qIndex, optIndex)}
+                              style={{ width: '100%', textAlign: 'left', cursor: 'pointer' }}
+                            >
+                              {opt}
+                            </button>
+                          );
+                        })}
+                      </div>
 
                       {submittedQuiz && (
                         <div style={{ marginTop: '10px', fontSize: '0.82rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
@@ -163,9 +170,10 @@ export default function StudyModuleModal({ studyModule, onClose }) {
 
                   {!submittedQuiz ? (
                     <button
+                      type="button"
                       onClick={() => setSubmittedQuiz(true)}
                       className="btn-primary-gold"
-                      style={{ width: '100%', justifyContent: 'center' }}
+                      style={{ width: '100%', justifyContent: 'center', marginTop: '12px' }}
                       disabled={Object.keys(userAnswers).length < currentLesson.quiz.length}
                     >
                       Enviar Cuestionario y Ver Calificación
@@ -181,7 +189,7 @@ export default function StudyModuleModal({ studyModule, onClose }) {
                           ? '¡Excelente trabajo! Has comprendido perfectamente la lección de hoy.' 
                           : '¡Buen intento! Puedes repasar la lección y volver a responder.'}
                       </p>
-                      <button onClick={handleResetQuiz} className="btn-card-gold" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      <button type="button" onClick={handleResetQuiz} className="btn-card-gold" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                         <RefreshCw size={14} /> Intentar de nuevo
                       </button>
                     </div>
