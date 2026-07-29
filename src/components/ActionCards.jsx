@@ -40,7 +40,7 @@ export default function ActionCards({ onOpenPdfs, onOpenStudies, onOpenPathways 
   };
 
   return (
-    <section className="section-padding" style={{ backgroundColor: '#FFFFFF', paddingTop: '40px', paddingBottom: '40px' }}>
+    <section className="section-padding" style={{ backgroundColor: '#FFFFFF', paddingTop: '50px', paddingBottom: '50px' }}>
       <div className="section-container">
         <div className="action-cards-grid">
           {actionCardsData.map(card => (
@@ -62,7 +62,8 @@ export default function ActionCards({ onOpenPdfs, onOpenStudies, onOpenPathways 
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                    zIndex: 10
                   }}
                   title="Editar Tarjeta"
                 >
@@ -70,19 +71,24 @@ export default function ActionCards({ onOpenPdfs, onOpenStudies, onOpenPathways 
                 </button>
               )}
 
-              <div className="action-card-icon">
-                {getCardIcon(card.type)}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
+                <div className="action-card-icon">
+                  {getCardIcon(card.type)}
+                </div>
+                <h3 className="action-card-title" style={{ margin: 0 }}>{card.title}</h3>
               </div>
-              <h3 className="action-card-title">{card.title}</h3>
+
               <p className="action-card-desc">{card.desc}</p>
               
-              <button 
-                onClick={() => handleCardClick(card.type)}
-                className="btn-card-gold"
-                style={{ width: '100%', marginTop: 'auto' }}
-              >
-                {card.buttonText}
-              </button>
+              <div style={{ marginTop: 'auto', paddingTop: '12px' }}>
+                <button 
+                  onClick={() => handleCardClick(card.type)}
+                  className="btn-card-gold"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px' }}
+                >
+                  {card.buttonText}
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -105,8 +111,9 @@ export default function ActionCards({ onOpenPdfs, onOpenStudies, onOpenPathways 
             <div className="modal-body">
               <form onSubmit={handleSaveCard} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 <div>
-                  <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Título de la Tarjeta</label>
+                  <label htmlFor="card-title-input" style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Título de la Tarjeta</label>
                   <input 
+                    id="card-title-input"
                     type="text"
                     required
                     value={formState.title}
@@ -116,8 +123,9 @@ export default function ActionCards({ onOpenPdfs, onOpenStudies, onOpenPathways 
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Descripción Corta</label>
+                  <label htmlFor="card-desc-input" style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Descripción Corta</label>
                   <textarea 
+                    id="card-desc-input"
                     rows={3}
                     required
                     value={formState.desc}
@@ -127,8 +135,9 @@ export default function ActionCards({ onOpenPdfs, onOpenStudies, onOpenPathways 
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Texto del Botón</label>
+                  <label htmlFor="card-button-input" style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--bg-dark)' }}>Texto del Botón</label>
                   <input 
+                    id="card-button-input"
                     type="text"
                     required
                     value={formState.buttonText}
