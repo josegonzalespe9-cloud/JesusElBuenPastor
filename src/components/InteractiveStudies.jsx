@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { Search, BookOpen, PlayCircle, Clock, Award } from 'lucide-react';
-import { interactiveStudies } from '../data/churchData';
+import { Search, BookOpen, PlayCircle, Clock, Award, Trash2, PlusCircle } from 'lucide-react';
+import { useSite } from '../context/SiteContext';
 
-export default function InteractiveStudies({ onSelectModule }) {
+export default function InteractiveStudies({ onSelectModule, onOpenAddStudyModal }) {
+  const { studiesList, deleteStudy, isAdminLoggedIn } = useSite();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
 
   const categories = ['Todos', 'Nuevo Testamento', 'Cartas Apostólicas', 'Antiguo Testamento'];
 
-  const filteredStudies = interactiveStudies.filter(study => {
+  const filteredStudies = studiesList.filter(study => {
     const matchesSearch = study.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           study.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'Todos' || study.category === selectedCategory;
@@ -27,15 +28,27 @@ export default function InteractiveStudies({ onSelectModule }) {
             </p>
           </div>
 
-          {/* Search Box */}
-          <div className="filter-search-box">
-            <Search size={18} color="var(--text-muted)" />
-            <input 
-              type="text" 
-              placeholder="Buscar por libro, tema o nivel..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            {/* Search Box */}
+            <div className="filter-search-box">
+              <Search size={18} color="var(--text-muted)" />
+              <input 
+                type="text" 
+                placeholder="Buscar por libro, tema o nivel..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            {isAdminLoggedIn && (
+              <button 
+                onClick={onOpenAddStudyModal}
+                className="btn-primary-gold" 
+                style={{ fontSize: '0.82rem', padding: '10px 18px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              >
+                <PlusCircle size={16} /> Crear Nuevo Módulo
+              </button>
+            )}
           </div>
         </div>
 
@@ -64,7 +77,31 @@ export default function InteractiveStudies({ onSelectModule }) {
         {/* Studies Cards Grid */}
         <div className="studies-grid">
           {filteredStudies.map(study => (
-            <div key={study.id} className="study-card">
+            <div key={study.id} className="study-card" style={{ position: 'relative' }}>
+              {isAdminLoggedIn && (
+                <button 
+                  onClick={() => deleteStudy(study.id)}
+                  style={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    zIndex: 10,
+                    backgroundColor: '#EF4444',
+                    color: '#FFFFFF',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                  }}
+                  title="Eliminar Módulo"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
+
               <div className="study-card-image">
                 <img src={study.thumbnail} alt={study.title} />
                 <span className="study-tag">{study.category}</span>

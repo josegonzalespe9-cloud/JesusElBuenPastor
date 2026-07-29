@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Church, Sparkles, Menu, X, Lock, ShieldCheck, Newspaper } from 'lucide-react';
+import { Church, Sparkles, Menu, X, Lock, ShieldCheck, Edit3 } from 'lucide-react';
 import { churchInfo } from '../data/churchData';
 
-export default function Navbar({ activeTab, setActiveTab, onOpenDonate, isAdminLoggedIn, onOpenAdminPanel, onOpenAdminLogin }) {
+export default function Navbar({ activeTab, setActiveTab, isAdminLoggedIn, onOpenAdminPanel, onOpenAdminLogin }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleNavClick = (tab) => {
@@ -27,7 +27,7 @@ export default function Navbar({ activeTab, setActiveTab, onOpenDonate, isAdminL
           </div>
           <div className="brand-logo-text">
             <span className="brand-title">{churchInfo.name}</span>
-            <span className="brand-subtitle">MINISTERIO EVANGÉLICO</span>
+            <span className="brand-subtitle">MINISTERIO DE EVANGELIZACIÓN</span>
           </div>
         </a>
 
@@ -83,24 +83,20 @@ export default function Navbar({ activeTab, setActiveTab, onOpenDonate, isAdminL
             <button 
               onClick={onOpenAdminPanel}
               className="btn-primary-gold"
-              style={{ fontSize: '0.78rem', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '6px' }}
-              title="Abrir Panel de Administración Pastoral"
+              style={{ fontSize: '0.82rem', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}
+              title="Abrir Panel de Edición y Administración Visual"
             >
-              <ShieldCheck size={16} /> PANEL PASTORAL
+              <Edit3 size={16} /> PANEL DE EDICIÓN Y GESTIÓN
             </button>
           ) : (
             <button 
               onClick={onOpenAdminLogin}
-              style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600' }}
-              title="Acceso Pastor"
+              style={{ fontSize: '0.82rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600', padding: '8px 14px', borderRadius: 'var(--radius-pill)', border: '1px solid var(--border-light)', backgroundColor: 'var(--bg-main)' }}
+              title="Acceso Administrador"
             >
-              <Lock size={14} /> ACCESO PASTOR
+              <Lock size={14} /> MODO ADMINISTRADOR
             </button>
           )}
-
-          <button onClick={onOpenDonate} className="btn-donate">
-            DONAR / APOYAR
-          </button>
         </div>
 
         {/* Mobile Hamburger Toggle Button */}
@@ -166,24 +162,16 @@ export default function Navbar({ activeTab, setActiveTab, onOpenDonate, isAdminL
                 className="btn-primary-gold"
                 style={{ width: '100%', justifyContent: 'center', padding: '12px' }}
               >
-                <ShieldCheck size={18} /> PANEL DE ADMINISTRACIÓN PASTORAL
+                <Edit3 size={18} /> PANEL DE EDICIÓN Y GESTIÓN
               </button>
             ) : (
               <button 
                 onClick={() => { setMobileMenuOpen(false); onOpenAdminLogin(); }}
                 style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)', backgroundColor: 'var(--bg-main)', color: 'var(--bg-dark)', fontWeight: '700', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
               >
-                <Lock size={16} /> ACCESO PASTORAL / ADMIN
+                <Lock size={16} /> MODO ADMINISTRADOR / EDITOR
               </button>
             )}
-
-            <button 
-              onClick={() => { setMobileMenuOpen(false); onOpenDonate(); }}
-              className="btn-donate"
-              style={{ width: '100%', textAlign: 'center', padding: '12px' }}
-            >
-              DONAR / APOYAR AL MINISTERIO
-            </button>
           </div>
         </div>
       )}

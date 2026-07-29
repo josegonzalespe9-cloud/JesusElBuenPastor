@@ -6,33 +6,37 @@ const SiteContext = createContext();
 export function SiteProvider({ children }) {
   // Admin Auth State
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  const [isEditModeActive, setIsEditModeActive] = useState(true); // Active when admin logged in
+  const [isEditModeActive, setIsEditModeActive] = useState(true);
 
-  // Editable Site Content State
+  // Editable Hero Section Data
   const [heroData, setHeroData] = useState({
     title: "PROFUNDIZA TU FE",
     subtitle: "Explora materiales descargables, guías de devoción diaria y estudios bíblicos interactivos diseñados para transformar tu vida espiritual.",
     imageUrl: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80",
-    badge: "CRECIENDO JUNTOS EN LA PALABRA"
+    badge: "PREDICANDO LA PALABRA DE DIOS"
   });
 
-  const [pastorWelcomeData, setPastorWelcomeData] = useState({
-    title: churchInfo.pastors.welcomeTitle,
-    pastorsName: churchInfo.pastors.names,
-    message: churchInfo.pastors.message,
+  // Editable Evangelist / Minister Bio
+  const [ministerBioData, setMinisterBioData] = useState({
+    title: "BIENVENIDOS AL MINISTERIO EVANGÉLICO",
+    authorName: churchInfo.pastors.names,
+    message: "Bienvenidos a esta plataforma de evangelización. Nuestra misión es llevar la verdad de la Palabra de Dios a cada rincón, edificar vidas a través del estudio bíblico interactivo y proclamar la esperanza de Jesucristo.",
     avatarUrl: churchInfo.pastors.avatarUrl
   });
 
-  // News Module Data (Locales y Mundiales)
+  // Interactive Studies List (Add, Edit, Delete)
+  const [studiesList, setStudiesList] = useState(interactiveStudies);
+
+  // News List (Add, Edit, Delete)
   const [newsList, setNewsList] = useState([
     {
       id: "news-1",
       title: "Gran Conferencia de Familias y Matrimonios este Fin de Semana",
       category: "Locales",
       date: "28 de Julio, 2026",
-      summary: "Nos preparamos para un tiempo glorioso de restauración familiar en nuestra sede principal. ¡Inscripciones abiertas para todas las familias!",
+      summary: "Nos preparamos para un tiempo glorioso de restauración familiar. ¡Inscripciones abiertas!",
       imageUrl: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=600&q=80",
-      content: "Invitamos a todas las familias de la comunidad a participar de tres días de enseñanza bíblica, talleres prácticos y ministración para matrimonios y jóvenes.",
+      content: "Invitamos a todos los creyentes y familias a participar de tres días de enseñanza bíblica, talleres prácticos y ministración.",
       googleDriveUrl: ""
     },
     {
@@ -40,35 +44,52 @@ export function SiteProvider({ children }) {
       title: "Avance del Evangelio y Misiones en el Continente Africano",
       category: "Mundiales",
       date: "25 de Julio, 2026",
-      summary: "Miles de vidas entregan su corazón a Jesucristo en las campañas misioneras internacionales. Oremos por nuestros misioneros en el campo.",
+      summary: "Miles de vidas entregan su corazón a Jesucristo en las campañas misioneras internacionales.",
       imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=600&q=80",
-      content: "Reporte misionero internacional: Dios está haciendo grandes maravillas en la plantación de nuevas iglesias y apoyo alimentario a comunidades vulnerables.",
-      googleDriveUrl: ""
-    },
-    {
-      id: "news-3",
-      title: "Lanzamiento de la Escuela Bíblica de Niños para el Nuevo Semestre",
-      category: "Eventos",
-      date: "20 de Julio, 2026",
-      summary: "Iniciamos el nuevo ciclo de discipulado infantil con nuevos materiales ilustrados y clases dinámicas.",
-      imageUrl: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
-      content: "La educación cristiana de nuestros niños es prioridad. Este domingo iniciamos la nueva serie temáticas 'Héroes de la Fe' para edades de 4 a 12 años.",
+      content: "Reporte misionero internacional: Dios está haciendo grandes maravillas en la plantación de nuevas obras y apoyo alimentario.",
       googleDriveUrl: ""
     }
   ]);
 
-  // Studies, Sermons, PDFs
-  const [studies, setStudies] = useState(interactiveStudies);
-  const [sermons, setSermons] = useState(sermonLibrary);
-  const [pdfResources, setPdfResources] = useState(downloadableResources);
+  // Sermons List (Add, Edit, Delete)
+  const [sermonsList, setSermonsList] = useState(sermonLibrary);
 
-  // Handlers for updating state dynamically from CMS Editor
-  const updateHero = (newData) => setHeroData(prev => ({ ...prev, ...newData }));
-  const updatePastorWelcome = (newData) => setPastorWelcomeData(prev => ({ ...prev, ...newData }));
+  // Testimonies List (Add, Edit, Delete)
+  const [testimoniesList, setTestimoniesList] = useState(testimonies);
 
-  const addNewsItem = (item) => setNewsList([item, ...newsList]);
-  const addSermonItem = (sermon) => setSermons([sermon, ...sermons]);
-  const addPdfResource = (resource) => setPdfResources([resource, ...pdfResources]);
+  // Section Visibilities
+  const [sectionVisibility, setSectionVisibility] = useState({
+    hero: true,
+    actionCards: true,
+    studies: true,
+    news: true,
+    sermons: true,
+    testimonies: true,
+    comments: true
+  });
+
+  // Actions
+  const updateHero = (data) => setHeroData(prev => ({ ...prev, ...data }));
+  const updateMinisterBio = (data) => setMinisterBioData(prev => ({ ...prev, ...data }));
+
+  const addStudy = (newStudy) => setStudiesList([newStudy, ...studiesList]);
+  const deleteStudy = (id) => setStudiesList(studiesList.filter(s => s.id !== id));
+
+  const addSermon = (newSermon) => setSermonsList([newSermon, ...sermonsList]);
+  const deleteSermon = (id) => setSermonsList(sermonsList.filter(s => s.id !== id));
+
+  const addNews = (newNews) => setNewsList([newNews, ...newsList]);
+  const deleteNews = (id) => setNewsList(newsList.filter(n => n.id !== id));
+
+  const addTestimony = (newT) => setTestimoniesList([newT, ...testimoniesList]);
+  const deleteTestimony = (id) => setTestimoniesList(testimoniesList.filter(t => t.id !== id));
+
+  const toggleSection = (sectionKey) => {
+    setSectionVisibility(prev => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey]
+    }));
+  };
 
   return (
     <SiteContext.Provider value={{
@@ -78,15 +99,22 @@ export function SiteProvider({ children }) {
       setIsEditModeActive,
       heroData,
       updateHero,
-      pastorWelcomeData,
-      updatePastorWelcome,
+      ministerBioData,
+      updateMinisterBio,
+      studiesList,
+      addStudy,
+      deleteStudy,
       newsList,
-      addNewsItem,
-      studies,
-      sermons,
-      addSermonItem,
-      pdfResources,
-      addPdfResource
+      addNews,
+      deleteNews,
+      sermonsList,
+      addSermon,
+      deleteSermon,
+      testimoniesList,
+      addTestimony,
+      deleteTestimony,
+      sectionVisibility,
+      toggleSection
     }}>
       {children}
     </SiteContext.Provider>

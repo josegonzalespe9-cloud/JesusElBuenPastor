@@ -14,10 +14,10 @@ import YouTubeModal from './components/YouTubeModal';
 import StudyModuleModal from './components/StudyModuleModal';
 import PdfGuideModal from './components/PdfGuideModal';
 import ShareStoryModal from './components/ShareStoryModal';
-import DonateModal from './components/DonateModal';
 import AdminLoginModal from './components/AdminLoginModal';
 import AdminPanelModal from './components/AdminPanelModal';
 import AddNewsModal from './components/AddNewsModal';
+import AddStudyModal from './components/AddStudyModal';
 
 import { useSite } from './context/SiteContext';
 
@@ -29,13 +29,13 @@ export default function App() {
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isAddNewsOpen, setIsAddNewsOpen] = useState(false);
+  const [isAddStudyOpen, setIsAddStudyOpen] = useState(false);
 
   // Modal States
   const [selectedStudyModule, setSelectedStudyModule] = useState(null);
   const [selectedPdfResource, setSelectedPdfResource] = useState(null);
   const [activeYoutubeVideo, setActiveYoutubeVideo] = useState(null);
   const [isShareStoryOpen, setIsShareStoryOpen] = useState(false);
-  const [isDonateOpen, setIsDonateOpen] = useState(false);
 
   const handleOpenYoutube = (youtubeId, title) => {
     setActiveYoutubeVideo({ youtubeId, title });
@@ -57,7 +57,6 @@ export default function App() {
       <Navbar 
         activeTab={activeTab} 
         setActiveTab={handleNavigateTab} 
-        onOpenDonate={() => setIsDonateOpen(true)}
         isAdminLoggedIn={isAdminLoggedIn}
         onOpenAdminLogin={() => setIsAdminLoginOpen(true)}
         onOpenAdminPanel={() => setIsAdminPanelOpen(true)}
@@ -81,6 +80,7 @@ export default function App() {
 
             <InteractiveStudies 
               onSelectModule={(study) => setSelectedStudyModule(study)}
+              onOpenAddStudyModal={() => setIsAddStudyOpen(true)}
             />
 
             <FeaturedResources 
@@ -113,7 +113,6 @@ export default function App() {
       {/* Footer */}
       <Footer 
         onNavigate={handleNavigateTab}
-        onOpenDonate={() => setIsDonateOpen(true)}
         isAdminLoggedIn={isAdminLoggedIn}
         onOpenAdminLogin={() => setIsAdminLoginOpen(true)}
         onOpenAdminPanel={() => setIsAdminPanelOpen(true)}
@@ -140,11 +139,6 @@ export default function App() {
         onClose={() => setIsShareStoryOpen(false)} 
       />
 
-      <DonateModal 
-        isOpen={isDonateOpen} 
-        onClose={() => setIsDonateOpen(false)} 
-      />
-
       {/* Admin Modals */}
       <AdminLoginModal 
         isOpen={isAdminLoginOpen}
@@ -159,15 +153,17 @@ export default function App() {
         isOpen={isAdminPanelOpen}
         onClose={() => setIsAdminPanelOpen(false)}
         onLogout={() => setIsAdminLoggedIn(false)}
-        onAddSermon={(newSermon) => {
-          console.log("Nuevo sermón publicado:", newSermon);
-        }}
         onTestYoutube={(youtubeId, title) => handleOpenYoutube(youtubeId, title)}
       />
 
       <AddNewsModal 
         isOpen={isAddNewsOpen}
         onClose={() => setIsAddNewsOpen(false)}
+      />
+
+      <AddStudyModal 
+        isOpen={isAddStudyOpen}
+        onClose={() => setIsAddStudyOpen(false)}
       />
     </div>
   );
